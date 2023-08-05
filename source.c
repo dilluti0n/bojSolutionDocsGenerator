@@ -11,137 +11,157 @@
 	#define BOJDIRPATH "/Users/hskimse/Desktop/백준"
 #endif
 
+#ifdef BOJDIRPATH
+#else
+	char BOJDIRPATH[64];
+#endif
+
 #define NUMOFPROBLEMS 100
-#define DOC_LENGTH 10000
-#define URL "http://dilluti0n.github.io"
+#define NAMEOFSOURCES { {.name = "C", .ext = "c"}, {.name = "Python", .ext = "py"}, {.name = NULL} }
+
+typedef const struct _Langs {
+	char* name;
+	char* ext;
+} LANG;
 
 DIR 			*dir_info;
 struct dirent   *dir_entry;
-FILE 			*sol, *c, *py, *inDex, *page;
+FILE 			*read, *write; 
+LANG			srcs[] = NAMEOFSOURCES;
 	
-char nameOfFiles[16][NUMOFPROBLEMS];
-char temp[256], indpth[256];
+char nameOfFiles[NUMOFPROBLEMS][16]; //array of name of files in BOJDIRPATH/sol
+char temp[64], indPth[64];
 char buffer;
-char (*strPointer)[NUMOFPROBLEMS] = nameOfFiles;
+char (*strPointer)[16] = nameOfFiles;
 char *charPointer;
 
+void mergeSource (LANG nameOfSource, const char* const prblmNumber);
+int  strcmpForqsort (const void*, const void*);
+
 int main ( int argc, char* argv[] ) {
-	#ifdef URL
-		char url[30] = URL;
-	#else
-		char url[20];
-		printf ("Enter your site's URL: ");
-		scanf ("%s", url);
-	#endif
+	printf("------------------------\nbojSolutionDocsGenerator\n------------------------\n\n");
 
 	#ifdef BOJDIRPATH
 	#else
-		char BOJDIRPATH[20];
 		printf ("Enter your directory's path: ");
 		scanf ("%s", BOJDIRPATH);
 	#endif
 
-	printf("------------------------\nbojSolutionDocsGenerator\n------------------------\n\n");
+	strcpy (temp, BOJDIRPATH);
+	strcat (temp, "/docs/origin.md");
+	read = fopen ( temp, "r");// open BOJDIRPATH/docs/origin.md as read
 
-	strcpy (indpth, BOJDIRPATH);
-	strcat (indpth, "/docs/index.markdown");
-	inDex = fopen ( indpth, "w"); // open BOJDIRPATH/docs/index.markdown as inDex
+	strcpy (indPth, BOJDIRPATH);
+	strcat (indPth, "/docs/index.markdown");
+	write = fopen ( indPth, "w"); // open BOJDIRPATH/docs/index.markdown as write
 
-	fprintf(inDex, "---\nlayout: home\ntitle: BOJ Solution Documentation\n---\n> This site provides solution for several problems in [Baekjun Online Judge, BOJ](https://www.acmicpc.net/), one of the coding challenge sites in Korea. Each matirial in Section [Solutions](##-solutions), named by the problem number of [BOJ](https://www.acmicpc.net/), contains the algorithm of each problem with consistent notation and the source code respectively. In section [Posts](##-posts), I will post the personal thoughts or motives I felt when solving the problem.\n## Solutions\n");
+	while ( (buffer = fgetc(read)) != EOF ) //index.md <- origin
+			fputc (buffer, write);
+	fclose (read); //close read(origin.md)
 	
 	strcpy (temp, BOJDIRPATH);
 	strcat (temp, "/sol");
 	dir_info = opendir ( temp ); // open BOJDIRPATH/sol as dir_info
 
-	if ( dir_info != NULL ) {
-		while ( (dir_entry = readdir ( dir_info ))) 
-			if ( dir_entry->d_name[0] != '.') {
-				strcpy(*strPointer, dir_entry->d_name);
-
-				charPointer = *strPointer;
-				while (*charPointer != '.')
-					charPointer++;
-				*charPointer = '\0'; // xxxx.md -> xxxx
-				fprintf ( inDex,"[");
-				fprintf ( inDex, "%s](Solutions/%s.html) ",*strPointer, *strPointer );
-				strPointer++;
-			}
-		strcpy (*strPointer, "END"); 
-		closedir (dir_info);
+	if ( !dir_info )  {
+		printf("There is no file to merge!!\n");
+		return -1;
 	}
-	fclose (inDex);
-	printf ("generated indexfile: %s\n",indpth);
+	int cnt = 0;
+	while ( (dir_entry = readdir ( dir_info ))) 
+		if ( dir_entry->d_name[0] != '.') {
+			strcpy(*strPointer, dir_entry->d_name);
+
+			charPointer = *strPointer;
+			while (*charPointer != '.')
+				charPointer++;
+			*charPointer = '\0'; // xxxx.md -> xxxx
+			fprintf ( write,"[");
+			fprintf ( write, "%s](Solutions/%s.html) ",*strPointer, *strPointer );
+			strPointer++;
+			cnt++;
+		}
+	qsort(nameOfFiles, cnt, 16, strcmpForqsort); //sort nameOfFiles to ascending order
+	closedir (dir_info);
+
 	printf ("target problems are:");
-	
-	for (strPointer = nameOfFiles; strcmp( *strPointer, "END") != 0 ; strPointer++)
+	for (strPointer = nameOfFiles; **strPointer ; strPointer++) {
 		printf(" %s", *strPointer);
-	printf("\n");
+		fprintf ( write,"[");
+		fprintf ( write, "%s](Solutions/%s.html) ",*strPointer, *strPointer );
+	}
+	**strPointer = '\0';
+	fclose (write); //close write(index.markdown)
+
+	printf ("\ngenerated indexfile: %s\n",indPth);
 	
-	for (strPointer = nameOfFiles; strcmp( *strPointer, "END") != 0 ; strPointer++) {
+	for (strPointer = nameOfFiles; **strPointer ; strPointer++) {
 		printf("\n");
+
+		//open target(Pages/xxxx.md)
 		strcpy (temp, BOJDIRPATH);
 		strcat (temp, "/docs/Pages/");
 		strcat (temp, *strPointer);
 		strcat (temp, ".md"); //temp = BOJDIRPATH/Pages/xxxx.md
+		write = fopen ( temp, "w"); //open BOJDIRPATH/Pages/xxxx.md as write
+		printf ("target %s\n", temp);
 
-		printf ("target: %s\n", temp);
-
-		page = fopen ( temp, "w"); //open BOJDIRPATH/Pages/xxxx.md as page
-
+		//open origin(sol/xxxx.md)
 		strcpy(temp, BOJDIRPATH);
 		strcat (temp, "/sol/");
 		strcat (temp, *strPointer);
 		strcat (temp, ".md"); //temp = BOJDIRPATH/sol/xxxx.md
+		read = fopen ( temp ,"r"); //open BOJDIRPATH/sol/xxxx.md as read
+		printf ("origin %s\n", temp);
 
-		printf ("assign from %s\n", temp);
+		//page <- sol
+		while ( (buffer = fgetc(read)) != EOF )
+			fputc (buffer, write);
+		fclose (read); // close read(sol/xxxx.md)
 
-		sol = fopen ( temp ,"r"); //open BOJDIRPATH/sol/xxxx.md as sol
+		//merge sources of srcs
+		fputs ("\n## Source LANG\n", write); 
+		for (const LANG* ptr = srcs; ptr->name; ptr++) 
+		mergeSource (*ptr, *strPointer);
+		fputc ('\n',write);
 
-		while ( (buffer = fgetc(sol)) != EOF ) //page <- sol
-			fputc (buffer, page);
-		fclose (sol);
-
-		fputs ("\n## Source code\n", page); 
-
-		strcpy (temp, BOJDIRPATH);
-		strcat (temp, "/py/");
-		strcat (temp, *strPointer);
-		strcat (temp, ".py"); //temp = BOJDIRPATH/py/xxxx.py
-		printf ("assign from %s\n", temp);
-
-		if ( fopen ( temp, "r") != NULL ) {
-			py = fopen ( temp, "r"); // open BOJDIRPATH/py/xxxx.py as py
-			fputs ("### Python\n", page);
-			fputs ("```python\n", page);
-			while ( (buffer = fgetc(py)) != EOF ) //page <- py
-				fputc (buffer, page);
-			fputs ("\n```\n", page);
-			fclose (py);
-		}
-
-		strcpy (temp, BOJDIRPATH);
-		strcat (temp, "/c/");
-		strcat (temp, *strPointer);
-		strcat (temp, ".c");
-		printf ("assign from %s\n", temp);
-
-		if ( fopen ( temp, "r") != NULL ) {
-			c = fopen ( temp, "r"); // open BOJDIRPATH/c/xxxx.c as c
-			fputs ("\n### C\n", page);
-			fputs ("```c\n", page);
-			while ( (buffer = fgetc(c)) != EOF ) //page <- c
-				fputc (buffer, page);
-			fputs ("\n```",page);
-			fclose (c);
-		}
-		fputc ('\n',page);
-
-		fclose (page);
-		printf("target %s.md generated!\n",*strPointer);
+		fclose (write); //close write(Pages/xxxx.md)
+		printf("target 'Pages/%s.md' generated!\n",*strPointer);
 	}
-	printf ("\ngenerated files in: ");
-	printf (BOJDIRPATH);
+	printf ("\ncomplete!!\ngenerated files are in ");
+	printf ("%s",BOJDIRPATH);
 	printf ("/docs/Pages\n");
 
 	return 0;
+}
+
+void mergeSource (LANG source, const char* const prblmNumber) {
+	FILE *src;
+
+	strcpy (temp, BOJDIRPATH);
+	strcat (temp, "/");
+	strcat (temp, source.ext);
+	strcat (temp, "/");
+	strcat (temp, prblmNumber);
+	strcat (temp, ".");
+	strcat (temp, source.ext); //temp = BOJDIRPATH/(nameOfSource)/xxxx.(nameOfSource)
+
+		if ( (src = fopen ( temp, "r"))) {// open BOJDIRPATH/(nameOfSource)/xxxx.(nameOfSource) as src
+			printf ("merge from %s\n", temp); 
+			fputs ("### ", write);
+			fputs (source.name, write);
+			fputs ("\n```", write);
+			fputs (source.name, write);
+			fputs ("\n", write);
+			while ( (buffer = fgetc(src)) != EOF ) //page <- py
+				fputc (buffer, write);
+			fputs ("\n```\n", write);
+			fclose (src);
+		}
+		else
+			printf("!Does not exists %s\n",temp);
+}
+
+int strcmpForqsort (const void* a, const void* b) {
+	return strcmp ( (char*)a, (char*)b );
 }
