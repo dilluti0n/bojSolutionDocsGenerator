@@ -3,10 +3,11 @@ compile:
 run:
 	./bojSolGen
 pcompile:
-	gcc -o bojSolGen -UBOJDIRPATH src/*.c
+	gcc -o bojSolGen src/*.c
 personal:
 	./bojSolGen
 	cd /home/hskim/my-site/baekjun
 	git add .
 	git commit -m 'auto commit by BSDG'
 	git push -u origin main
+	git status
