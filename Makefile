@@ -24,4 +24,4 @@ $xrun:
 	git -C $($xpath) push -u origin main
 	git -C $($xpath) status
 
-done
+
