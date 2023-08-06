@@ -18,15 +18,15 @@ a simple macro for repository [dilluti0n/baekjun](https://github.com/dilluti0n/b
 
 ## how to compile & use
 There is three way to compile and use this macro.
-### I (recommended)
+### way I (recommended)
 1. `vim ./makefile` and modify the syntex `{your_path}` to your BOJ directory path.
 2. `make ucompile` to compile the macro.
 3. `make run` to run the macro.
-### II
+### way II
 1. `make compile` to compile the macro.
 2. `mv ./bojSolGen {your_path}` to move the macro to your BOJ direcrory path.
 3. after move your program, `cd {your_path}` and `./bojSolGen` to run the macro.
-### III
+### way III
 1. `make jcompile` to compile the macro.
 2. `./bojSolGen` to run the macro. (In this way, you need to type `{your_path}` in the macro.)
 
