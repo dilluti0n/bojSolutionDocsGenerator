@@ -17,7 +17,7 @@ a simple macro for repository [dilluti0n/baekjun](https://github.com/dilluti0n/b
 3. `{extension}\{problem_number}.{extension}` should contain a source code of the algorithm whih a language {extension}. (e.g. `c\1000.c`, `py\1000.py`)
 
 ## how to compile & use
-There is three way to compile and use this macro.
+There are three ways to compile and use this macro.
 ### way I (recommended)
 1. `vim ./makefile` and modify the syntex `{your_path}` to your BOJ directory path.
 2. `make ucompile` to compile the macro.
