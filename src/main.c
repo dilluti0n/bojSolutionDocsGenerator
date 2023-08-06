@@ -4,13 +4,6 @@
 #include <dirent.h>
 #include <string.h>
 
-#ifdef __linux__
-	#define BOJDIRPATH "/home/hskim/my-site/baekjun"
-#endif
-#ifdef __APPLE__
-	#define BOJDIRPATH "/Users/hskimse/Desktop/백준"
-#endif
-
 #ifdef BOJDIRPATH
 #else
 	char BOJDIRPATH[64];
