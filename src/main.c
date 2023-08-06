@@ -17,11 +17,11 @@
 #endif
 
 #define NUMOFPROBLEMS 100
-#define NAMEOFSOURCES { {.name = "C", .ext = "c"}, {.name = "Python", .ext = "py"}, {.name = NULL} }
+#define NAMEOFSOURCES { {.name = "c", .ext = "c"}, {.name = "python", .ext = "py"}, {.name = NULL} }
 
-typedef const struct _Langs {
-	char* name;
-	char* ext;
+typedef struct _Langs {
+	const char* name;
+	const char* ext;
 } LANG;
 
 DIR 			*dir_info;
@@ -48,8 +48,8 @@ int main ( int argc, char* argv[] ) {
 	#endif
 
 	strcpy (temp, BOJDIRPATH);
-	strcat (temp, "/docs/origin.md");
-	read = fopen ( temp, "r");// open BOJDIRPATH/docs/origin.md as read
+	strcat (temp, "/assets/origin.md");
+	read = fopen ( temp, "r");// open BOJDIRPATH/assets/origin.md as read
 
 	strcpy (indPth, BOJDIRPATH);
 	strcat (indPth, "/docs/index.markdown");
@@ -60,8 +60,8 @@ int main ( int argc, char* argv[] ) {
 	fclose (read); //close read(origin.md)
 	
 	strcpy (temp, BOJDIRPATH);
-	strcat (temp, "/sol");
-	dir_info = opendir ( temp ); // open BOJDIRPATH/sol as dir_info
+	strcat (temp, "/assets/sol");
+	dir_info = opendir ( temp ); // open BOJDIRPATH/assets/sol as dir_info
 
 	if ( !dir_info )  {
 		printf("There is no file to merge!!\n");
@@ -76,8 +76,6 @@ int main ( int argc, char* argv[] ) {
 			while (*charPointer != '.')
 				charPointer++;
 			*charPointer = '\0'; // xxxx.md -> xxxx
-			fprintf ( write,"[");
-			fprintf ( write, "%s](Solutions/%s.html) ",*strPointer, *strPointer );
 			strPointer++;
 			cnt++;
 		}
@@ -98,19 +96,19 @@ int main ( int argc, char* argv[] ) {
 	for (strPointer = nameOfFiles; **strPointer ; strPointer++) {
 		printf("\n");
 
-		//open target(Pages/xxxx.md)
+		//open target(Solutions/xxxx.md)
 		strcpy (temp, BOJDIRPATH);
-		strcat (temp, "/docs/Pages/");
+		strcat (temp, "/docs/Solutions/");
 		strcat (temp, *strPointer);
-		strcat (temp, ".md"); //temp = BOJDIRPATH/Pages/xxxx.md
-		write = fopen ( temp, "w"); //open BOJDIRPATH/Pages/xxxx.md as write
+		strcat (temp, ".md"); //temp = BOJDIRPATH/Solutions/xxxx.md
+		write = fopen ( temp, "w"); //open BOJDIRPATH/Solutions/xxxx.md as write
 		printf ("target %s\n", temp);
 
 		//open origin(sol/xxxx.md)
 		strcpy(temp, BOJDIRPATH);
-		strcat (temp, "/sol/");
+		strcat (temp, "/assets/sol/");
 		strcat (temp, *strPointer);
-		strcat (temp, ".md"); //temp = BOJDIRPATH/sol/xxxx.md
+		strcat (temp, ".md"); //temp = BOJDIRPATH/assets/sol/xxxx.md
 		read = fopen ( temp ,"r"); //open BOJDIRPATH/sol/xxxx.md as read
 		printf ("origin %s\n", temp);
 
@@ -120,17 +118,17 @@ int main ( int argc, char* argv[] ) {
 		fclose (read); // close read(sol/xxxx.md)
 
 		//merge sources of srcs
-		fputs ("\n## Source LANG\n", write); 
+		fputs ("\n## Codes\n", write); 
 		for (const LANG* ptr = srcs; ptr->name; ptr++) 
 		mergeSource (*ptr, *strPointer);
 		fputc ('\n',write);
 
-		fclose (write); //close write(Pages/xxxx.md)
-		printf("target 'Pages/%s.md' generated!\n",*strPointer);
+		fclose (write); //close write(Solutions/xxxx.md)
+		printf("target 'Solutions/%s.md' generated!\n",*strPointer);
 	}
 	printf ("\ncomplete!!\ngenerated files are in ");
 	printf ("%s",BOJDIRPATH);
-	printf ("/docs/Pages\n");
+	printf ("/docs/Solutions\n");
 
 	return 0;
 }
