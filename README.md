@@ -19,7 +19,7 @@ a simple macro for repository [dilluti0n/baekjun](https://github.com/dilluti0n/b
 ## how to compile & use
 There is three way to compile and use this macro.
 ### I (recommended)
-1. open `./makefile` and modify the syntex `{your_path}` to your BOJ directory path.
+1. `vim ./makefile` and modify the syntex `{your_path}` to your BOJ directory path.
 2. `make ucompile` to compile the macro.
 3. `make run` to run the macro.
 ### II
