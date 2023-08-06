@@ -28,6 +28,6 @@ There are three ways to compile and use this macro.
 3. after move your program, `cd {your_path}` and `./bojSolGen` to run the macro.
 ### way III
 1. `make jcompile` to compile the macro.
-2. `./bojSolGen` to run the macro. (In this way, you need to type `{your_path}` in the macro.)
+2. `./bojSolGen` to run the macro. (In this way, you need to type `{your_path}` while running the macro.)
 
 Note that only the first method commits the changes made by the macro to the BOJ repository and pushes them to github automatically.
