@@ -3,7 +3,7 @@ a simple macro for repository [dilluti0n/baekjun](https://github.com/dilluti0n/b
 
 ## requirements
 * Your OS must be based on Unix. (e.g. Linux, macOS)
-* `git` and your boj repository with following rules.
+* `git` and your boj repository with following rules :
 ```bash
 ├── assets
 │   ├── origin.md
@@ -12,9 +12,9 @@ a simple macro for repository [dilluti0n/baekjun](https://github.com/dilluti0n/b
 └── {extension}
     └── {problem_number}.{extension}
 ```
-> `assets\origin.md` should contain the base of your documentation's homepage.
-> `assets\sol\{probem_number}.md` should contain a description of the algorithm of the {problem_number}.
-> `{extension}\{problem_number}.{extension}` should contain a source code of the algorithm whih a language {extension}. (e.g. `c\1000.c`, `py\1000.py`)
+1. `assets\origin.md` should contain the base of your documentation's homepage.
+2. `assets\sol\{probem_number}.md` should contain a description of the algorithm of the {problem_number}.
+3. `{extension}\{problem_number}.{extension}` should contain a source code of the algorithm whih a language {extension}. (e.g. `c\1000.c`, `py\1000.py`)
 
 ## how to compile & use
 There is three way to compile and use this macro.
