@@ -85,11 +85,12 @@ int main ( int argc, char* argv[] ) {
 	fclose (write); //close write(index.markdown)
 
 	printf ("\ngenerated indexfile: %s\n",indPth);
-	
-	for (strPointer = nameOfFiles; **strPointer ; strPointer++) {
+
+	cnt = 1;
+	for (strPointer = nameOfFiles; **strPointer ; strPointer++,cnt++) {
 		printf("\n");
 
-		//open target(Solutions/xxxx.md)
+		//open write(Solutions/xxxx.md)
 		strcpy (temp, BOJDIRPATH);
 		strcat (temp, "/docs/Solutions/");
 		strcat (temp, *strPointer);
@@ -97,13 +98,16 @@ int main ( int argc, char* argv[] ) {
 		write = fopen ( temp, "w"); //open BOJDIRPATH/Solutions/xxxx.md as write
 		printf ("target %s\n", temp);
 
-		//open origin(sol/xxxx.md)
+		//open read(sol/xxxx.md)
 		strcpy(temp, BOJDIRPATH);
 		strcat (temp, "/assets/sol/");
 		strcat (temp, *strPointer);
 		strcat (temp, ".md"); //temp = BOJDIRPATH/assets/sol/xxxx.md
 		read = fopen ( temp ,"r"); //open BOJDIRPATH/sol/xxxx.md as read
 		printf ("origin %s\n", temp);
+
+		//put yaml front to Solutions/xxxx.md
+		fprintf(write, "---\nlayout: page\ntitle: %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, cnt);
 
 		//page <- sol
 		while ( (buffer = fgetc(read)) != EOF )
