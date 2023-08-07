@@ -1,10 +1,10 @@
 path={your_path}
-x = l
+x = d
 dpath=/home/hskim/my-site/baekjun
 lpath=/Users/hskimse/Desktop/baekjun
 
 compile:
-	gcc -o bojSolGen -D BOJDIRPATH="\"./\"" src/*.c
+	gcc -o bojSolGen -D BOJDIRPATH="\".\"" src/*.c
 ucompile:
 	gcc -o bojSolGen -D BOJDIRPATH="\"$(path)\"" src/*.c
 jcompile:
