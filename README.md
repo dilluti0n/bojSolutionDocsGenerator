@@ -26,7 +26,7 @@ There are three ways to compile and use this macro.
 ### way II (recommended)
 1. `make compile` to compile the macro.
 2. `mv ./bojSolGen {your_path}` to move the macro to your BOJ direcrory path.
-3. after move your program, `cd {your_path}` and `./bojSolGen` to run the macro.
+3. `cd {your_path}` and `./bojSolGen` to run the macro.
 ### way III
 1. `make jcompile` to compile the macro.
 2. `./bojSolGen` to run the macro. (In this way, you need to type `{your_path}` while running the macro.)
