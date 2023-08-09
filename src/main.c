@@ -1,49 +1,22 @@
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <dirent.h>
-#include <string.h>
+#include "main.h"
 
-#ifdef BOJDIRPATH
-#else
-	char BOJDIRPATH[64];
-#endif
-
-#define NUMOFPROBLEMS 100
-#define NAMEOFSOURCES { {.name = "c", .ext = "c"}, {.name = "python", .ext = "py"}, {.name = NULL} }
-
-typedef struct _Langs {
-	const char* name;
-	const char* ext;
-} LANG;
-
-DIR 			*dir_info;
-struct dirent   *dir_entry;
-FILE 			*read, *write; 
-LANG			srcs[] = NAMEOFSOURCES;
-	
-char nameOfFiles[NUMOFPROBLEMS][16]; //array of name of files in BOJDIRPATH/sol
-char temp[64], indPth[64];
-char buffer;
-char (*strPointer)[16] = nameOfFiles;
-char *charPointer;
-
-void mergeSource (LANG nameOfSource, const char* const prblmNumber);
-int  strcmpForqsort (const void*, const void*);
+LANG	srcs[] = NAMEOFSOURCES;
+char 	(*strPointer)[16] = nameOfFiles;
 
 int main ( int argc, char* argv[] ) {
 	printf("------------------------\nbojSolutionDocsGenerator\n------------------------\n\n");
 
-	#ifdef BOJDIRPATH
-	#else
+	#ifndef BOJDIRPATH
 		printf ("Enter your directory's path: ");
 		scanf ("%s", BOJDIRPATH);
 	#endif
 
 	strcpy (temp, BOJDIRPATH);
 	strcat (temp, "/assets/origin.md");
-	read = fopen ( temp, "r");// open BOJDIRPATH/assets/origin.md as read
-
+	if ( !(read = fopen ( temp, "r")) ) { // open BOJDIRPATH/assets/origin.md as read
+		printf ("\n[error] Wrong Path or assets/origin.md does not exists !!!\n");
+		return -1 ;
+	}
 	strcpy (indPth, BOJDIRPATH);
 	strcat (indPth, "/docs/index.markdown");
 	write = fopen ( indPth, "w"); // open BOJDIRPATH/docs/index.markdown as write
@@ -54,10 +27,9 @@ int main ( int argc, char* argv[] ) {
 	
 	strcpy (temp, BOJDIRPATH);
 	strcat (temp, "/assets/sol");
-	dir_info = opendir ( temp ); // open BOJDIRPATH/assets/sol as dir_info
 
-	if ( !dir_info )  {
-		printf("There is no file to merge!!\n");
+	if ( !(dir_info = opendir ( temp )))  {
+		printf("There is no file to merge!!\n"); // open BOJDIRPATH/assets/sol as dir_info
 		return -1;
 	}
 	int cnt = 0;
@@ -74,6 +46,7 @@ int main ( int argc, char* argv[] ) {
 		}
 	qsort(nameOfFiles, cnt, 16, strcmpForqsort); //sort nameOfFiles to ascending order
 	closedir (dir_info);
+	**strPointer = '\0';
 
 	printf ("target problems are:");
 	for (strPointer = nameOfFiles; **strPointer ; strPointer++) {
@@ -81,7 +54,7 @@ int main ( int argc, char* argv[] ) {
 		fprintf ( write,"[");
 		fprintf ( write, "%s](Solutions/%s.html) ",*strPointer, *strPointer );
 	}
-	**strPointer = '\0';
+
 	fclose (write); //close write(index.markdown)
 
 	printf ("\ngenerated indexfile: %s\n",indPth);
@@ -99,7 +72,7 @@ int main ( int argc, char* argv[] ) {
 		printf ("target %s\n", temp);
 
 		//open read(sol/xxxx.md)
-		strcpy(temp, BOJDIRPATH);
+		strcpy (temp, BOJDIRPATH);
 		strcat (temp, "/assets/sol/");
 		strcat (temp, *strPointer);
 		strcat (temp, ".md"); //temp = BOJDIRPATH/assets/sol/xxxx.md
@@ -128,35 +101,4 @@ int main ( int argc, char* argv[] ) {
 	printf ("/docs/Solutions\n");
 
 	return 0;
-}
-
-void mergeSource (LANG source, const char* const prblmNumber) {
-	FILE *src;
-
-	strcpy (temp, BOJDIRPATH);
-	strcat (temp, "/");
-	strcat (temp, source.ext);
-	strcat (temp, "/");
-	strcat (temp, prblmNumber);
-	strcat (temp, ".");
-	strcat (temp, source.ext); //temp = BOJDIRPATH/(nameOfSource)/xxxx.(nameOfSource)
-
-		if ( (src = fopen ( temp, "r"))) {// open BOJDIRPATH/(nameOfSource)/xxxx.(nameOfSource) as src
-			printf ("merge from %s\n", temp); 
-			fputs ("### ", write);
-			fputs (source.name, write);
-			fputs ("\n```", write);
-			fputs (source.name, write);
-			fputs ("\n", write);
-			while ( (buffer = fgetc(src)) != EOF ) //page <- py
-				fputc (buffer, write);
-			fputs ("\n```\n", write);
-			fclose (src);
-		}
-		else
-			printf("!Does not exists %s\n",temp);
-}
-
-int strcmpForqsort (const void* a, const void* b) {
-	return strcmp ( (char*)a, (char*)b );
 }

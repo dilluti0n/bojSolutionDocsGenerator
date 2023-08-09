@@ -1,7 +1,7 @@
 path={your_path}
-x = d
+x = l
 dpath=/home/hskim/my-site/baekjun
-lpath=/Users/hskimse/Desktop/baekjun
+lpath=/Users/hskimse/Desktop/projects/baekjun
 
 compile:
 	gcc -o bojSolGen -D BOJDIRPATH="\".\"" src/*.c
