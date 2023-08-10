@@ -7,7 +7,7 @@
 #include <string.h>
 
 #ifndef BOJDIRPATH
-	char BOJDIRPATH[64];
+	char BOJDIRPATH[255];
 #endif
 
 #define NUMOFPROBLEMS 100
@@ -23,7 +23,7 @@ struct dirent   *dir_entry;
 FILE 			*read, *write; 
 	
 char nameOfFiles[NUMOFPROBLEMS][16]; //array of name of files in BOJDIRPATH/sol
-char temp[64], indPth[64];
+char temp[255], indPth[255], title[255], problem[255];
 char buffer;
 char *charPointer;
 
