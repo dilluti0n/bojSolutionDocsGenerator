@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __MAINHH__
+#define __MAINHH__ 1
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -23,9 +24,11 @@ struct dirent   *dir_entry;
 FILE 			*read, *write; 
 	
 char nameOfFiles[NUMOFPROBLEMS][16]; //array of name of files in BOJDIRPATH/sol
-char temp[255], indPth[255], title[255], problem[255];
+char temp[255], indPth[255], problemTitle[255], problem[255];
 char buffer;
 char *charPointer;
 
 void mergeSource (LANG nameOfSource, const char* const prblmNumber);
 int  strcmpForqsort (const void*, const void*);
+
+#endif

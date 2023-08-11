@@ -1,9 +1,11 @@
 #include "main.h"
+#include "crawler.h"
 
 LANG	srcs[] = NAMEOFSOURCES;
 char 	(*strPointer)[16] = nameOfFiles;
 
 int main ( int argc, char* argv[] ) {
+	strcpy (problemTitle,"error!!!!");
 	printf("------------------------\nbojSolutionDocsGenerator\n------------------------\n\n");
 
 	#ifndef BOJDIRPATH
@@ -79,9 +81,14 @@ int main ( int argc, char* argv[] ) {
 		read = fopen ( temp ,"r"); //open BOJDIRPATH/sol/xxxx.md as read
 		printf ("origin %s\n", temp);
 
-		//put yaml front to Solutions/xxxx.md
-		fprintf(write, "---\nlayout: page\ntitle: %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, cnt);
+		titleWriter(problemTitle, *strPointer);
 
+		//put yaml front to Solutions/xxxx.md
+		fprintf(write, "---\nlayout: page\ntitle: %s %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, problemTitle, cnt);
+
+		//make page title
+		fprintf(write, "# [[BOJ]](https://www.acmicpc.net/problem) [%s](https://www.acmicpc.net/problem/%s) %s\n",*strPointer, *strPointer, problemTitle);
+		
 		//page <- sol
 		while ( (buffer = fgetc(read)) != EOF )
 			fputc (buffer, write);
