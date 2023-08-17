@@ -20,8 +20,7 @@ void getTitle(TidyDoc doc, TidyNode tnod, char* title) {
       /* if it has a name, then it's an HTML tag ... */
       TidyAttr attr;
       for(attr = tidyAttrFirst(child); attr; attr = tidyAttrNext(attr) ) 
-        if (tidyAttrValue(attr))
-        	if (!strcmp(tidyAttrValue(attr),"problem_title")){
+        if (tidyAttrValue(attr) && !strcmp(tidyAttrValue(attr),"problem_title")) {
         		TidyBuffer buf;
       			tidyBufInit(&buf);
       			tidyNodeGetText(doc, tidyGetChild(child), &buf);
@@ -54,9 +53,11 @@ int titleWriter (char* title, char* prblmNumber) {
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_cb);
  
     tdoc = tidyCreate();
+    tidySetCharEncoding(tdoc, "utf8");
     tidyOptSetBool(tdoc, TidyForceOutput, yes); /* try harder */
     tidyOptSetInt(tdoc, TidyWrapLen, 4096);
     tidySetErrorBuffer(tdoc, &tidy_errbuf);
+
     tidyBufInit(&docbuf);
  
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &docbuf);
@@ -67,9 +68,8 @@ int titleWriter (char* title, char* prblmNumber) {
         err = tidyCleanAndRepair(tdoc); /* fix any problems */
         if(err >= 0) {
           err = tidyRunDiagnostics(tdoc); /* load tidy error buffer */
-          if(err >= 0) {
+          if(err >= 0) 
             getTitle(tdoc, tidyGetRoot(tdoc), title); /* walk the tree */
-          }
         }
       }
     }
