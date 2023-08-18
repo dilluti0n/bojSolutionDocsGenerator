@@ -98,8 +98,11 @@ int main ( int argc, char* argv[] ) {
 				fputc ('\n', write);
 			}
 			read = fopen ( docPointer->file, "r");
-			while ( (buffer = fgetc(read)) != EOF )
+			while ( (buffer = fgetc(read)) != EOF ) {
+				if (buffer == '$')
+					fputc ('$',write);
 				fputc (buffer, write);
+			}
 			fclose (read); // close read(sol/xxxx.md)
 			fputc ('\n', write);
 		}
