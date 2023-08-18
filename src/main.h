@@ -7,6 +7,8 @@
 #include <dirent.h>
 #include <string.h>
 
+#include "crawler.h"
+
 #ifndef BOJDIRPATH
 	char BOJDIRPATH[255];
 #endif
@@ -27,8 +29,5 @@ char nameOfFiles[NUMOFPROBLEMS][16]; //array of name of files in BOJDIRPATH/sol
 char temp[255], indPth[255], problemTitle[255], problem[255];
 char buffer;
 char *charPointer;
-
-void mergeSource (LANG nameOfSource, const char* const prblmNumber);
-int  strcmpForqsort (const void*, const void*);
 
 #endif

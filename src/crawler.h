@@ -5,6 +5,12 @@
 #include <tidy/tidy.h>
 #include <tidy/buffio.h>
 
+typedef struct {
+    char* id;
+    char* file;
+    char* header;
+} DOCS;
+
 extern char temp[255];
 
 size_t bufferCallback(char * buffer, size_t size, size_t nmemb, TidyBuffer * tidyBuffer);

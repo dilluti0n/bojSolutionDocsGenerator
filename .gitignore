@@ -3,3 +3,4 @@ main_debug*
 bojSolGen
 .vscode*
 .DS_Store
+*.bojSolGen

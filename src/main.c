@@ -1,10 +1,18 @@
 #include "main.h"
 #include "crawler.h"
+#include "macro.h"
 
 LANG	srcs[] = NAMEOFSOURCES;
 char 	(*strPointer)[16] = nameOfFiles;
+DOCS	macro[3] = {
+		{.id = "problem_description", .file = "description.bojSolGen", .header = NULL},
+		{.id = "problem_input", .file = "input.bojSolGen", .header = "## input"},
+		{.id = "problem_output", .file = "output.bojSolGen", .header = "## output"},
+		{.id = NULL}
+		};
 
 int main ( int argc, char* argv[] ) {
+	
 	strcpy (problemTitle,"error!!!!");
 	printf("------------------------\nbojSolutionDocsGenerator\n------------------------\n\n");
 
@@ -73,6 +81,28 @@ int main ( int argc, char* argv[] ) {
 		write = fopen ( temp, "w"); //open BOJDIRPATH/Solutions/xxxx.md as write
 		printf ("target %s\n", temp);
 
+		//crawl title & problem
+		titleWriter(problemTitle, *strPointer);
+		printf("check2\n");
+		//put yaml front to Solutions/xxxx.md
+		fprintf(write, "---\nlayout: page\ntitle: %s %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, problemTitle, cnt);
+
+		//make page title
+		fprintf(write, "# [BOJ] [%s](https://www.acmicpc.net/problem/%s) %s\n",*strPointer, *strPointer, problemTitle);
+
+		//open & copy crawled problem
+		for ( DOCS* docPointer = macro; docPointer->id; docPointer++) {
+			if (docPointer->header) {
+				fputc ('\n', write);
+				fputs (docPointer->header, write);
+				fputc ('\n', write);
+			}
+			read = fopen ( docPointer->file, "r");
+			while ( (buffer = fgetc(read)) != EOF )
+				fputc (buffer, write);
+			fclose (read); // close read(sol/xxxx.md)
+			fputc ('\n', write);
+		}
 		//open read(sol/xxxx.md)
 		strcpy (temp, BOJDIRPATH);
 		strcat (temp, "/assets/sol/");
@@ -81,14 +111,6 @@ int main ( int argc, char* argv[] ) {
 		read = fopen ( temp ,"r"); //open BOJDIRPATH/sol/xxxx.md as read
 		printf ("origin %s\n", temp);
 
-		titleWriter(problemTitle, *strPointer);
-
-		//put yaml front to Solutions/xxxx.md
-		fprintf(write, "---\nlayout: page\ntitle: %s %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, problemTitle, cnt);
-
-		//make page title
-		fprintf(write, "# [[BOJ]](https://www.acmicpc.net/problem) [%s](https://www.acmicpc.net/problem/%s) %s\n",*strPointer, *strPointer, problemTitle);
-		
 		//page <- sol
 		while ( (buffer = fgetc(read)) != EOF )
 			fputc (buffer, write);
@@ -106,6 +128,10 @@ int main ( int argc, char* argv[] ) {
 	printf ("\ncomplete!!\ngenerated files are in ");
 	printf ("%s",BOJDIRPATH);
 	printf ("/docs/Solutions\n");
+
+	#ifdef __GITCOMMENDLINEMACRO__
+	gitMacro();
+	#endif
 
 	return 0;
 }

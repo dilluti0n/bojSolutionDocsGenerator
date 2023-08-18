@@ -1,4 +1,5 @@
 #include "main.h"
+#include "macro.h"
 
 void mergeSource (LANG source, const char* const prblmNumber) {
 	FILE *src;
@@ -29,4 +30,10 @@ void mergeSource (LANG source, const char* const prblmNumber) {
 
 int strcmpForqsort (const void* a, const void* b) {
 	return strcmp ( (char*)a, (char*)b );
+}
+
+void gitMacro (void) {
+	system ("git add -A");
+	system ("git commit -m \'auto update by bojSolGen\'");
+	system ("git push -u");
 }
