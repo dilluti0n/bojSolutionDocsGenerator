@@ -24,8 +24,7 @@ void getTitle(TidyDoc doc, TidyNode tnod, char* title) {
 		ctmbstr name = tidyNodeGetName(child);
 		if(name) {
 			/* if it has a name, then it's an HTML tag ... */
-			TidyAttr attr;
-			for(attr = tidyAttrFirst(child); attr; attr = tidyAttrNext(attr) )
+			for(TidyAttr attr = tidyAttrFirst(child); attr; attr = tidyAttrNext(attr) )
 				if ( tidyAttrValue(attr)) {
 					if ( ind && !strcmp(tidyAttrValue(attr), "problem_title") ) {
 						TidyBuffer buf;
@@ -49,6 +48,23 @@ void getTitle(TidyDoc doc, TidyNode tnod, char* title) {
 									fputs (buf.bp?(char *)buf.bp:"", target);
 									fputc ('\n', target);
 									tidyBufFree(&buf);
+								}
+								else if ( !strcmp(nodeName, "img")){
+									fputs ("<center>",target);
+									fputc ('<',target);
+									fputs (nodeName, target);
+									fputc (' ', target);
+									for (TidyAttr imgAttr = tidyAttrFirst(nodeChild); imgAttr; imgAttr = tidyAttrNext(imgAttr)) {
+										fputs (tidyAttrName(imgAttr), target);
+										if (!strcmp(tidyAttrName(imgAttr), "src")) {
+											fputs("=\"https://www.acmicpc.net", target);
+											fputs(tidyAttrValue(imgAttr), target);
+											fputs("\" ",target);
+										}
+										else
+											tidyAttrValue(imgAttr)?fprintf(target, "=\"%s\" ",tidyAttrValue(imgAttr)):fputs(" ",target);
+									}
+									fputs ("><\\center>\n\n", target);
 								}
 							}
 							fclose (target);
