@@ -64,7 +64,7 @@ void getTitle(TidyDoc doc, TidyNode tnod, char* title) {
 										else
 											tidyAttrValue(imgAttr)?fprintf(target, "=\"%s\" ",tidyAttrValue(imgAttr)):fputs(" ",target);
 									}
-									fputs ("><\\center>\n\n", target);
+									fputs ("></center>\n\n", target);
 								}
 							}
 							fclose (target);
