@@ -1,10 +1,30 @@
-#include "main.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <dirent.h>
+#include <string.h>
+
 #include "crawler.h"
 #include "macro.h"
 
-LANG	srcs[] = NAMEOFSOURCES;
-char 	(*strPointer)[16] = nameOfFiles;
-DOCS	macro[3] = {
+#define NUMOFPROBLEMS 100
+
+DIR 			*dir_info;
+struct dirent   *dir_entry;
+FILE 			*read, *write; 
+	
+char nameOfFiles[NUMOFPROBLEMS][16]; //array of name of files in BOJDIRPATH/sol
+char (*strPointer)[16] = nameOfFiles;
+char temp[255], indPth[255], problemTitle[255] = "error!!!!";
+char *charPointer;
+char buffer;
+
+LANG	srcs[] = { 
+		{.name = "c", .ext = "c"},
+		{.name = "python", .ext = "py"},
+		{.name = NULL}
+		};
+DOCS	macro[] = {
 		{.id = "problem_description", .file = "description.bojSolGen", .header = NULL},
 		{.id = "problem_input", .file = "input.bojSolGen", .header = "## input"},
 		{.id = "problem_output", .file = "output.bojSolGen", .header = "## output"},
@@ -12,9 +32,7 @@ DOCS	macro[3] = {
 		};
 
 int main ( int argc, char* argv[] ) {
-	
-	strcpy (problemTitle,"error!!!!");
-	printf("------------------------\nbojSolutionDocsGenerator\n------------------------\n\n");
+	printf("---------------------------\n| bojSolutionDocsGenerator |\n---------------------------\n\n");
 
 	#ifndef BOJDIRPATH
 		printf ("Enter your directory's path: ");
@@ -69,8 +87,7 @@ int main ( int argc, char* argv[] ) {
 
 	printf ("\ngenerated indexfile: %s\n",indPth);
 
-	cnt = 1;
-	for (strPointer = nameOfFiles; **strPointer ; strPointer++,cnt++) {
+	for (strPointer = nameOfFiles, cnt = 1; **strPointer ; strPointer++,cnt++) {
 		printf("\n");
 
 		//open write(Solutions/xxxx.md)
@@ -83,7 +100,10 @@ int main ( int argc, char* argv[] ) {
 
 		//crawl title & problem
 		titleWriter(problemTitle, *strPointer);
-		printf("check2\n");
+		printf("\n***********************************************************************\n");
+		printf("*** completely crawled from %s!!! ***\n", temp);
+		printf("***********************************************************************\n\n");
+
 		//put yaml front to Solutions/xxxx.md
 		fprintf(write, "---\nlayout: page\ntitle: %s %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, problemTitle, cnt);
 
@@ -135,6 +155,6 @@ int main ( int argc, char* argv[] ) {
 	#ifdef __GITCOMMENDLINEMACRO__
 	gitMacro();
 	#endif
-
+	system ("rm -rf ./*.bojSolGen");
 	return 0;
 }
