@@ -16,8 +16,8 @@ extern char temp[255];
 extern FILE *read, *write; 
 extern char buffer;
 
-void mergeSource (LANG nameOfSource, const char* const prblmNumber);
-int  strcmpForqsort (const void*, const void*);
-void gitMacro (void);
+void 	mergeSource (LANG nameOfSource, const char* const prblmNumber);
+int  	strcmpForqsort (const void*, const void*);
+void 	gitMacro (void);
 
 #endif

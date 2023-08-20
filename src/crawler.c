@@ -4,68 +4,76 @@
 #include "crawler.h"
 
 /* curl write callback, to fill tidy's input buffer...  */
-unsigned long long int write_cb(char *in, unsigned long long int size, unsigned long long int nmemb, TidyBuffer *out) {
-	unsigned long long int r;
+size_t write_cb(char *in, size_t size, size_t nmemb, TidyBuffer *out) {
+	size_t r;
 	r = size * nmemb;
 	tidyBufAppend(out, in, r);
 	return r;
 }
 
 /* Traverse the document tree */
-void getTitle(TidyDoc doc, TidyNode tnod, char* title) {
+void htmlWalker(TidyDoc doc, TidyNode tnod, char* title) {
 	FILE* target;
 
 	for(TidyNode child = tidyGetChild(tnod); child; child = tidyGetNext(child) ) {
-		if ( tidyNodeGetName(child)) {
+		if ( tidyNodeGetName(child) ) {
 			for(TidyAttr attr = tidyAttrFirst(child); attr; attr = tidyAttrNext(attr) ) {
-				if (tidyAttrValue(attr)) {
-					if ( !strcmp(tidyAttrValue(attr), "problem_title")) {
+				ctmbstr attrVal = tidyAttrValue(attr);
+				if ( attrVal ) {
+					if ( !strcmp(attrVal, "problem_title") ) {
 						TidyBuffer buf;
 						tidyBufInit(&buf);
 						tidyNodeGetText(doc, tidyGetChild(child), &buf);
 						strcpy(title, (char*) buf.bp);
 						tidyBufFree(&buf);
 					}
+					/*if the html tag's ID is docPointer->id, Scrapes all the text and image elements under that tag.*/
 					else for (DOCS* docPointer = macro; docPointer->id; docPointer++)
-						if ( !strcmp(tidyAttrValue(attr), docPointer->id)) {
-							TidyNode node, nodeChild;
+						if ( !strcmp(attrVal, docPointer->id) ) {
 							target = fopen (docPointer->file, "w");
-							for (node = tidyGetChild(child); node; node = tidyGetNext(node)) {
-								nodeChild = tidyGetChild(node);
-								ctmbstr nodeName = tidyNodeGetName(nodeChild);
-								if ( !nodeName ) {
-									TidyBuffer buf;
-									tidyBufInit(&buf);
-									tidyNodeGetText(doc, nodeChild, &buf);
-									fputs (buf.bp?(char *)buf.bp:"", target);
-									fputc ('\n', target);
-									tidyBufFree(&buf);
-								}
-								else if ( !strcmp(nodeName, "img")){
-									fputs ("<center>",target);
-									fputc ('<',target);
-									fputs (nodeName, target);
-									fputc (' ', target);
-									for (TidyAttr imgAttr = tidyAttrFirst(nodeChild); imgAttr; imgAttr = tidyAttrNext(imgAttr)) {
-										fputs (tidyAttrName(imgAttr), target);
-										if (!strcmp(tidyAttrName(imgAttr), "src")) {
-											fputs("=\"https://www.acmicpc.net", target);
-											fputs(tidyAttrValue(imgAttr), target);
-											fputs("\" ",target);
-										}
-										else
-											tidyAttrValue(imgAttr)?fprintf(target, "=\"%s\" ",tidyAttrValue(imgAttr)):fputs(" ",target);
-									}
-									fputs ("></center>\n\n", target);
-								}
-							}
+							htmlLoader(doc, child, target);
 							fclose (target);
 							return;
 						}
 				}
 			}
 		}
-		getTitle(doc, child, title); /* recursive */
+		htmlWalker(doc, child, title); /* recursive */
+	}
+}
+
+/*Traverse and copy all the text and images*/
+void htmlLoader(TidyDoc doc, TidyNode tnod, FILE* target) {
+	for (TidyNode child = tidyGetChild(tnod); child; child = tidyGetNext(child)) {
+		ctmbstr childName = tidyNodeGetName (child);
+		/*text*/
+		if ( !childName ) {
+			TidyBuffer buf;
+			tidyBufInit(&buf);
+			tidyNodeGetText(doc, child, &buf);
+			fputs (buf.bp?(char *)buf.bp:"", target);
+			fputc ('\n', target);
+			tidyBufFree(&buf);
+		}
+		/*image*/
+		else if ( !strcmp(childName, "img")){
+			fputs ("<center>",target);
+			fputc ('<',target);
+			fputs (childName, target);
+			fputc (' ', target);
+			for (TidyAttr imgAttr = tidyAttrFirst(child); imgAttr; imgAttr = tidyAttrNext(imgAttr)) {
+				fputs (tidyAttrName(imgAttr), target);
+				if (!strcmp(tidyAttrName(imgAttr), "src")) {
+					fputs("=\"https://www.acmicpc.net", target);
+					fputs(tidyAttrValue(imgAttr), target);
+					fputs("\" ",target);
+				}
+				else
+					tidyAttrValue(imgAttr)?fprintf(target, "=\"%s\" ",tidyAttrValue(imgAttr)):fputs(" ",target);
+			}
+			fputs ("></center>\n\n", target);
+		}
+		htmlLoader(doc, child, target);
 	}
 }
 
@@ -104,7 +112,7 @@ int titleWriter (char* title, char* prblmNumber) {
 			if(err >= 0) {
 				err = tidyRunDiagnostics(tdoc); /* load tidy error buffer */
 				if(err >= 0) 
-					getTitle(tdoc, tidyGetRoot(tdoc), title); /* walk the tree */
+					htmlWalker(tdoc, tidyGetRoot(tdoc), title); /* walk the tree */
 			}
 		}
 	}
