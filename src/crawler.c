@@ -83,7 +83,7 @@ int titleWriter (char* title, char* prblmNumber) {
 	TidyDoc tdoc;
 	TidyBuffer docbuf = {0};
 	TidyBuffer tidy_errbuf = {0};
-	int err;
+	int err = -1;
 
 	strcpy (temp, "https://www.acmicpc.net/problem/");
 	strcat (temp, prblmNumber);
@@ -97,29 +97,31 @@ int titleWriter (char* title, char* prblmNumber) {
 
 	tdoc = tidyCreate();
 	tidySetCharEncoding(tdoc, "utf8");
-	tidyOptSetBool(tdoc, TidyForceOutput, yes);
 	tidyOptSetInt(tdoc, TidyWrapLen, 4096);
-	tidySetErrorBuffer(tdoc, &tidy_errbuf);
 
 	tidyBufInit(&docbuf);
 
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &docbuf);
-	err = curl_easy_perform(curl);
-	if(!err) {
-		err = tidyParseBuffer(tdoc, &docbuf); /* parse the input */
-		if(err >= 0) {
-			err = tidyCleanAndRepair(tdoc); /* fix any problems */
-			if(err >= 0) {
-				err = tidyRunDiagnostics(tdoc); /* load tidy error buffer */
-				if(err >= 0) 
-					htmlWalker(tdoc, tidyGetRoot(tdoc), title); /* walk the tree */
-			}
+
+	if ( curl_easy_perform(curl) == CURLE_OK ) {
+		err = tidySetErrorBuffer(tdoc, &tidy_errbuf);
+		if (err >= 0)
+			err = tidyParseBuffer(tdoc, &docbuf); 
+		if (err >= 0) 
+			err = tidyCleanAndRepair(tdoc); 
+		if (err >= 0) 
+			err = tidyRunDiagnostics(tdoc); 
+		if (err > 1)
+			err = ( tidyOptSetBool(tdoc, TidyForceOutput, yes)?err:-1 );
+		if (err >= 0) {
+			htmlWalker(tdoc, tidyGetRoot(tdoc), title);
 		}
+		tidyBufFree(&tidy_errbuf); 	
 	}
 
 	curl_easy_cleanup(curl);
 	tidyBufFree(&docbuf);
-	tidyBufFree(&tidy_errbuf);
 	tidyRelease(tdoc);
+	
 	return err;
 }

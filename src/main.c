@@ -12,8 +12,10 @@
 DIR 			*dir_info;
 struct dirent   *dir_entry;
 FILE 			*read, *write; 
+
+int error;
 	
-char nameOfFiles[NUMOFPROBLEMS][16]; //array of name of files in BOJDIRPATH/sol
+char nameOfFiles[NUMOFPROBLEMS][16]; /*array of name of files in BOJDIRPATH/sol*/
 char (*strPointer)[16] = nameOfFiles;
 char temp[255], indPth[255], problemTitle[255] = "error!!!!";
 char *charPointer;
@@ -41,23 +43,23 @@ int main ( int argc, char* argv[] ) {
 
 	strcpy (temp, BOJDIRPATH);
 	strcat (temp, "/assets/origin.md");
-	if ( !(read = fopen ( temp, "r")) ) { // open BOJDIRPATH/assets/origin.md as read
+	if ( !(read = fopen ( temp, "r")) ) { /* open BOJDIRPATH/assets/origin.md as read */
 		printf ("\n[error] Wrong Path or assets/origin.md does not exists !!!\n");
 		return -1 ;
 	}
 	strcpy (indPth, BOJDIRPATH);
 	strcat (indPth, "/docs/index.markdown");
-	write = fopen ( indPth, "w"); // open BOJDIRPATH/docs/index.markdown as write
+	write = fopen ( indPth, "w"); /* open BOJDIRPATH/docs/index.markdown as write */
 
-	while ( (buffer = fgetc(read)) != EOF ) //index.md <- origin
+	while ( (buffer = fgetc(read)) != EOF ) /* index.md <- origin */
 			fputc (buffer, write);
-	fclose (read); //close read(origin.md)
+	fclose (read); /* close read(origin.md) */
 	
 	strcpy (temp, BOJDIRPATH);
 	strcat (temp, "/assets/sol");
 
 	if ( !(dir_info = opendir ( temp )))  {
-		printf("There is no file to merge!!\n"); // open BOJDIRPATH/assets/sol as dir_info
+		printf("There is no file to merge!!\n"); /* open BOJDIRPATH/assets/sol as dir_info */
 		return -1;
 	}
 	int cnt = 0;
@@ -68,11 +70,11 @@ int main ( int argc, char* argv[] ) {
 			charPointer = *strPointer;
 			while (*charPointer != '.')
 				charPointer++;
-			*charPointer = '\0'; // xxxx.md -> xxxx
+			*charPointer = '\0'; /* xxxx.md -> xxxx */
 			strPointer++;
 			cnt++;
 		}
-	qsort(nameOfFiles, cnt, 16, strcmpForqsort); //sort nameOfFiles to ascending order
+	qsort(nameOfFiles, cnt, 16, strcmpForqsort); /*sort nameOfFiles to ascending order*/
 	closedir (dir_info);
 	**strPointer = '\0';
 
@@ -83,69 +85,76 @@ int main ( int argc, char* argv[] ) {
 		fprintf ( write, "%s](Solutions/%s.html) ",*strPointer, *strPointer );
 	}
 
-	fclose (write); //close write(index.markdown)
+	fclose (write); /*close write(index.markdown)*/
 
 	printf ("\ngenerated indexfile: %s\n",indPth);
 
 	for (strPointer = nameOfFiles, cnt = 1; **strPointer ; strPointer++,cnt++) {
 		printf("\n");
 
-		//open write(Solutions/xxxx.md)
+		/*open write(Solutions/xxxx.md)*/
 		strcpy (temp, BOJDIRPATH);
 		strcat (temp, "/docs/Solutions/");
 		strcat (temp, *strPointer);
-		strcat (temp, ".md"); //temp = BOJDIRPATH/Solutions/xxxx.md
-		write = fopen ( temp, "w"); //open BOJDIRPATH/Solutions/xxxx.md as write
+		strcat (temp, ".md"); /*temp = BOJDIRPATH/Solutions/xxxx.md*/
+		write = fopen ( temp, "w"); /*open BOJDIRPATH/Solutions/xxxx.md as write*/
 		printf ("target %s\n", temp);
 
-		//crawl title & problem
-		titleWriter(problemTitle, *strPointer);
-		printf("\n***********************************************************************\n");
-		printf("*** completely crawled from %s!!! ***\n", temp);
-		printf("***********************************************************************\n\n");
+		/*crawl title & problem*/
+		if ( ( error = titleWriter(problemTitle, *strPointer) ) >= 0) {
+			printf("\n***********************************************************************\n");
+			printf("*** completely crawled from %s!!! ***\n", temp);
+			printf("***********************************************************************\n\n");
+		}
+		else
+			printf("crawl failed, errcode: [%d]\n", error);
 
-		//put yaml front to Solutions/xxxx.md
+		/*put yaml front to Solutions/xxxx.md*/
 		fprintf(write, "---\nlayout: page\ntitle: %s %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, problemTitle, cnt);
 
-		//make page title
+		/*make page title*/
 		fprintf(write, "# [BOJ] [%s](https://www.acmicpc.net/problem/%s) %s\n",*strPointer, *strPointer, problemTitle);
 
-		//open & copy crawled problem
+		/* open & copy crawled elements */
 		for ( DOCS* docPointer = macro; docPointer->id; docPointer++) {
-			if (docPointer->header) {
+			if ( docPointer->header ) {
 				fputc ('\n', write);
 				fputs (docPointer->header, write);
 				fputc ('\n', write);
 			}
-			read = fopen ( docPointer->file, "r");
-			while ( (buffer = fgetc(read)) != EOF ) {
-				if (buffer == '$')
-					fputc ('$',write);
-				fputc (buffer, write);
+			if ( ( read = fopen ( docPointer->file, "r") ) ) {
+				while ( (buffer = fgetc(read)) != EOF ) {
+					if (buffer == '$')
+						fputc ('$',write);
+					fputc (buffer, write);
+				}
+				fclose (read); /* close read(./docPointer->file) */
+				fputc ('\n', write);
 			}
-			fclose (read); // close read(sol/xxxx.md)
-			fputc ('\n', write);
+			else {
+				fputs ("crawl failed\n", write);
+			}
 		}
-		//open read(sol/xxxx.md)
+		/*open read(sol/xxxx.md)*/
 		strcpy (temp, BOJDIRPATH);
 		strcat (temp, "/assets/sol/");
 		strcat (temp, *strPointer);
-		strcat (temp, ".md"); //temp = BOJDIRPATH/assets/sol/xxxx.md
-		read = fopen ( temp ,"r"); //open BOJDIRPATH/sol/xxxx.md as read
+		strcat (temp, ".md"); /*temp = BOJDIRPATH/assets/sol/xxxx.md*/
+		read = fopen ( temp ,"r"); /*open BOJDIRPATH/sol/xxxx.md as read*/
 		printf ("origin %s\n", temp);
 
-		//page <- sol
+		/*page <- sol*/
 		while ( (buffer = fgetc(read)) != EOF )
 			fputc (buffer, write);
-		fclose (read); // close read(sol/xxxx.md)
+		fclose (read); /* close read(sol/xxxx.md) */
 
-		//merge sources of srcs
+		/*merge sources of srcs*/
 		fputs ("\n## Codes\n", write); 
 		for (const LANG* ptr = srcs; ptr->name; ptr++) 
 		mergeSource (*ptr, *strPointer);
 		fputc ('\n',write);
 
-		fclose (write); //close write(Solutions/xxxx.md)
+		fclose (write); /*close write(Solutions/xxxx.md)*/
 		printf("target 'Solutions/%s.md' generated!\n",*strPointer);
 	}
 	printf ("\ncomplete!!\ngenerated files are in ");
@@ -155,6 +164,8 @@ int main ( int argc, char* argv[] ) {
 	#ifdef __GITCOMMENDLINEMACRO__
 	gitMacro();
 	#endif
+
 	system ("rm -rf ./*.bojSolGen");
+
 	return 0;
 }
