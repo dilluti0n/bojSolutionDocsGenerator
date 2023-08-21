@@ -5,6 +5,7 @@
 
 #include "macro.h"
 
+/* merge the solution codes */
 void mergeSource (LANG source, const char* const prblmNumber) {
 	FILE *src;
 

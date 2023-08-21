@@ -27,7 +27,7 @@ void htmlWalker(TidyDoc doc, TidyNode tnod, char* title) {
 						strcpy(title, (char*) buf.bp);
 						tidyBufFree(&buf);
 					}
-					/*if the html tag's ID is docPointer->id, Scrapes all the text and image elements under that tag.*/
+					/*if the html tag's ID is docPointer->id, load elements under that tag.*/
 					else for (DOCS* docPointer = macro; docPointer->id; docPointer++)
 						if ( !strcmp(attrVal, docPointer->id) ) {
 							target = fopen (docPointer->file, "w");
@@ -42,7 +42,7 @@ void htmlWalker(TidyDoc doc, TidyNode tnod, char* title) {
 	}
 }
 
-/*Traverse and copy all the text and images*/
+/*copy all the text and images under tnod*/
 void htmlLoader(TidyDoc doc, TidyNode tnod, FILE* target) {
 	for (TidyNode child = tidyGetChild(tnod); child; child = tidyGetNext(child)) {
 		ctmbstr childName = tidyNodeGetName (child);

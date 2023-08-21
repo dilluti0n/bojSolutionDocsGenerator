@@ -161,11 +161,11 @@ int main ( int argc, char* argv[] ) {
 	printf ("%s",BOJDIRPATH);
 	printf ("/docs/Solutions\n");
 
+	system ("rm -rf ./*.bojSolGen");
+
 	#ifdef __GITCOMMENDLINEMACRO__
 	gitMacro();
 	#endif
-
-	system ("rm -rf ./*.bojSolGen");
 
 	return 0;
 }

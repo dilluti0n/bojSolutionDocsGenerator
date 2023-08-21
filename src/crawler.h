@@ -3,7 +3,7 @@
 
 #include <curl/curl.h>
 #include <tidy/tidy.h>
-#include <tidy/tidybuffio.h>
+#include <tidy/buffio.h>
 
 typedef struct {
     char* id;
