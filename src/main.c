@@ -6,12 +6,14 @@
 
 #include "crawler.h"
 #include "macro.h"
+#include "buf.h"
 
 #define NUMOFPROBLEMS 100
 
 DIR 			*dir_info;
 struct dirent   *dir_entry;
 FILE 			*read, *write; 
+BojBuffer 		io;
 
 int error;
 	
@@ -122,18 +124,11 @@ int main ( int argc, char* argv[] ) {
 				fputs (docPointer->header, write);
 				fputc ('\n', write);
 			}
-			if ( ( read = fopen ( docPointer->file, "r") ) ) {
-				while ( (buffer = fgetc(read)) != EOF ) {
-					if (buffer == '$')
-						fputc ('$',write);
-					fputc (buffer, write);
-				}
-				fclose (read); /* close read(./docPointer->file) */
-				fputc ('\n', write);
+			for (BojBuffer* listPtr = &docPointer->io; listPtr;) {
+				listPtr = listPtr->next;
+				fputs (listPtr->bp, write);
 			}
-			else {
-				fputs ("crawl failed\n", write);
-			}
+			BojBufFree (&docPointer->io);
 		}
 		/*open read(sol/xxxx.md)*/
 		strcpy (temp, BOJDIRPATH);
@@ -161,11 +156,11 @@ int main ( int argc, char* argv[] ) {
 	printf ("%s",BOJDIRPATH);
 	printf ("/docs/Solutions\n");
 
+	system ("rm -rf ./*.bojSolGen");
+
 	#ifdef __GITCOMMENDLINEMACRO__
 	gitMacro();
 	#endif
-
-	system ("rm -rf ./*.bojSolGen");
 
 	return 0;
 }

@@ -3,19 +3,23 @@
 
 #include <curl/curl.h>
 #include <tidy/tidy.h>
-#include <tidy/tidybuffio.h>
+#include <tidy/buffio.h>
+
+#include "buf.h"
 
 typedef struct {
-    char* id;
-    char* file;
-    char* header;
+    char*       id;
+    char*       file;
+    char*       header;
+    BojBuffer   io;
 } DOCS;
 
 extern char temp[255];
 extern DOCS macro[4];
+extern 
 
 size_t  write_cb(char *in, size_t size, size_t nmemb, TidyBuffer *out);
-void    htmlLoader(TidyDoc doc, TidyNode tnod, FILE* target);
+void    htmlLoader(TidyDoc doc, TidyNode tnod, DOCS* docPointer);
 void    htmlWalker(TidyDoc doc, TidyNode tnod, char* title);
 int     titleWriter (char* title, char* prblmNumber);
 
