@@ -1,5 +1,5 @@
 path={your_path}
-x = l
+x = d
 dpath=/home/hskim/my-site/baekjun
 lpath=/Users/hskimse/Desktop/projects/baekjun
 dep=-lcurl -ltidy

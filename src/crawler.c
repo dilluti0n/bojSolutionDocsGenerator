@@ -49,10 +49,8 @@ void htmlLoader(TidyDoc doc, TidyNode tnod, DOCS* docPointer) {
 			TidyBuffer buf;
 			tidyBufInit(&buf);
 			tidyNodeGetText(doc, child, &buf);
-
 			BojBufAppend(buf.bp?(char *)buf.bp:"", &docPointer->io);
 			BojBufAppend("\n", &docPointer->io);
-
 			tidyBufFree(&buf);
 		}
 		/*image*/

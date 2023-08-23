@@ -12,9 +12,9 @@ typedef struct _bojBuffer {
     struct _bojBuffer*  next;
 } BojBuffer;
 
-void BojBufInit (BojBuffer* buf);
-char* BojBufWrite (const char* input, BojBuffer* target);
-BojBuffer* BojBufAppend (const char* input, BojBuffer* target);
-BojBuffer* BojBufFree (BojBuffer* buf);
+void        BojBufInit (BojBuffer* buf);
+char*       BojBufWrite (const char* input, BojBuffer* target);
+BojBuffer*  BojBufAppend (const char* input, BojBuffer* target);
+BojBuffer*  BojBufFree (BojBuffer* buf);
 
 #endif

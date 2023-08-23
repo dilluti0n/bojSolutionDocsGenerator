@@ -110,7 +110,6 @@ int main ( int argc, char* argv[] ) {
 		}
 		else
 			printf("crawl failed, errcode: [%d]\n", error);
-
 		/*put yaml front to Solutions/xxxx.md*/
 		fprintf(write, "---\nlayout: page\ntitle: %s %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, problemTitle, cnt);
 
@@ -124,10 +123,20 @@ int main ( int argc, char* argv[] ) {
 				fputs (docPointer->header, write);
 				fputc ('\n', write);
 			}
-			for (BojBuffer* listPtr = &docPointer->io; listPtr;) {
-				listPtr = listPtr->next;
-				fputs (listPtr->bp, write);
+			
+			BojBuffer* listPtr = docPointer->io.next;
+			charPointer = listPtr->bp;
+			while ( listPtr ) {
+				fputc (*charPointer, write);
+				if (*charPointer == '$')
+					fputc ('$', write);
+				charPointer++ ;
+				if (*charPointer == '\0') {
+					if ( (listPtr = listPtr->next) )
+						charPointer = listPtr->bp;
+				}
 			}
+
 			BojBufFree (&docPointer->io);
 		}
 		/*open read(sol/xxxx.md)*/
