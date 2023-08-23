@@ -13,7 +13,6 @@ size_t write_cb(char *in, size_t size, size_t nmemb, TidyBuffer *out) {
 
 /* Traverse the document tree */
 void htmlWalker(TidyDoc doc, TidyNode tnod, char* title) {
-	FILE* target;
 
 	for(TidyNode child = tidyGetChild(tnod); child; child = tidyGetNext(child) ) {
 		if ( tidyNodeGetName(child) ) {
@@ -27,12 +26,16 @@ void htmlWalker(TidyDoc doc, TidyNode tnod, char* title) {
 						strcpy(title, (char*) buf.bp);
 						tidyBufFree(&buf);
 					}
+<<<<<<< HEAD
 					/*if the html tag's ID is docPointer->id, load elements under that tag.*/
 					else for (DOCS* docPointer = macro; docPointer->id; docPointer++)
+=======
+					/*if the html tag's ID is docPointer->id, Scrapes all the text and image elements under that tag.*/
+					else for (DOCS* docPointer = macro; docPointer->id; docPointer++) 
+>>>>>>> crawler
 						if ( !strcmp(attrVal, docPointer->id) ) {
-							target = fopen (docPointer->file, "w");
-							htmlLoader(doc, child, target);
-							fclose (target);
+							BojBufInit (&docPointer->io);
+							htmlLoader(doc, child, docPointer);
 							return;
 						}
 				}
@@ -42,8 +45,13 @@ void htmlWalker(TidyDoc doc, TidyNode tnod, char* title) {
 	}
 }
 
+<<<<<<< HEAD
 /*copy all the text and images under tnod*/
 void htmlLoader(TidyDoc doc, TidyNode tnod, FILE* target) {
+=======
+/*Traverse and copy all the text and images*/
+void htmlLoader(TidyDoc doc, TidyNode tnod, DOCS* docPointer) {
+>>>>>>> crawler
 	for (TidyNode child = tidyGetChild(tnod); child; child = tidyGetNext(child)) {
 		ctmbstr childName = tidyNodeGetName (child);
 		/*text*/
@@ -51,29 +59,34 @@ void htmlLoader(TidyDoc doc, TidyNode tnod, FILE* target) {
 			TidyBuffer buf;
 			tidyBufInit(&buf);
 			tidyNodeGetText(doc, child, &buf);
-			fputs (buf.bp?(char *)buf.bp:"", target);
-			fputc ('\n', target);
+			BojBufAppend(buf.bp?(char *)buf.bp:"", &docPointer->io);
+			BojBufAppend("\n", &docPointer->io);
 			tidyBufFree(&buf);
 		}
 		/*image*/
 		else if ( !strcmp(childName, "img")){
-			fputs ("<center>",target);
-			fputc ('<',target);
-			fputs (childName, target);
-			fputc (' ', target);
+			BojBufAppend ("<center>", &docPointer->io);
+			BojBufAppend ("<", &docPointer->io);
+			BojBufAppend (childName, &docPointer->io);
+			BojBufAppend (" ", &docPointer->io);
 			for (TidyAttr imgAttr = tidyAttrFirst(child); imgAttr; imgAttr = tidyAttrNext(imgAttr)) {
-				fputs (tidyAttrName(imgAttr), target);
+				BojBufAppend (tidyAttrName(imgAttr), &docPointer->io);
 				if (!strcmp(tidyAttrName(imgAttr), "src")) {
-					fputs("=\"https://www.acmicpc.net", target);
-					fputs(tidyAttrValue(imgAttr), target);
-					fputs("\" ",target);
+					BojBufAppend("=\"https://www.acmicpc.net", &docPointer->io);
+					BojBufAppend(tidyAttrValue(imgAttr), &docPointer->io);
+					BojBufAppend("\" ", &docPointer->io);
+				}
+				else if ( tidyAttrValue(imgAttr) ) {
+					BojBufAppend ("=\"", &docPointer->io);
+					BojBufAppend (tidyAttrValue(imgAttr), &docPointer->io);
+					BojBufAppend ("\"", &docPointer->io);
 				}
 				else
-					tidyAttrValue(imgAttr)?fprintf(target, "=\"%s\" ",tidyAttrValue(imgAttr)):fputs(" ",target);
+					BojBufAppend(" ",&docPointer->io);
 			}
-			fputs ("></center>\n\n", target);
+			BojBufAppend ("></center>\n\n", &docPointer->io);
 		}
-		htmlLoader(doc, child, target);
+		htmlLoader(doc, child, docPointer);
 	}
 }
 

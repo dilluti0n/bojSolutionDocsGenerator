@@ -6,12 +6,14 @@
 
 #include "crawler.h"
 #include "macro.h"
+#include "buf.h"
 
 #define NUMOFPROBLEMS 100
 
 DIR 			*dir_info;
 struct dirent   *dir_entry;
 FILE 			*read, *write; 
+BojBuffer 		io;
 
 int error;
 	
@@ -108,7 +110,6 @@ int main ( int argc, char* argv[] ) {
 		}
 		else
 			printf("crawl failed, errcode: [%d]\n", error);
-
 		/*put yaml front to Solutions/xxxx.md*/
 		fprintf(write, "---\nlayout: page\ntitle: %s %s\nparent: Solutions\nnav_order: %i\n---\n", *strPointer, problemTitle, cnt);
 
@@ -122,18 +123,21 @@ int main ( int argc, char* argv[] ) {
 				fputs (docPointer->header, write);
 				fputc ('\n', write);
 			}
-			if ( ( read = fopen ( docPointer->file, "r") ) ) {
-				while ( (buffer = fgetc(read)) != EOF ) {
-					if (buffer == '$')
-						fputc ('$',write);
-					fputc (buffer, write);
+			
+			BojBuffer* listPtr = docPointer->io.next;
+			charPointer = listPtr->bp;
+			while ( listPtr ) {
+				fputc (*charPointer, write);
+				if (*charPointer == '$')
+					fputc ('$', write);
+				charPointer++ ;
+				if (*charPointer == '\0') {
+					if ( (listPtr = listPtr->next) )
+						charPointer = listPtr->bp;
 				}
-				fclose (read); /* close read(./docPointer->file) */
-				fputc ('\n', write);
 			}
-			else {
-				fputs ("crawl failed\n", write);
-			}
+
+			BojBufFree (&docPointer->io);
 		}
 		/*open read(sol/xxxx.md)*/
 		strcpy (temp, BOJDIRPATH);
