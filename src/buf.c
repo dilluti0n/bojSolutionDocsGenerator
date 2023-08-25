@@ -14,7 +14,7 @@ char* BojBufWrite (const char* input, BojBuffer* target) {
     target->size = strlen (input) + 1;
     target->allocated = target->size * sizeof (char);
     target->allocater = (char*) malloc (target->allocated);
-	target->bp = target->allocater;
+    target->bp = target->allocater;
     strcpy (target->bp, input);
 
     return target->allocater;
@@ -35,9 +35,10 @@ BojBuffer* BojBufAppend (const char* input, BojBuffer* target) {
 
 /* free all memory used by bojbuffer */
 BojBuffer* BojBufFree (BojBuffer* buf) {
-    while ( (buf = buf->next) ) {
-        free (buf->allocater);
+    while ( buf ) {
         free (buf->next);
+        if ( (buf = buf->next) )
+            free (buf->allocater);
     }
     return buf;
 }

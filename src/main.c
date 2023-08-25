@@ -12,14 +12,13 @@
 
 DIR 			*dir_info;
 struct dirent   *dir_entry;
-FILE 			*read, *write; 
-BojBuffer 		io;
+FILE 			*read, *write;
 
 int error;
 	
 char nameOfFiles[NUMOFPROBLEMS][16]; /*array of name of files in BOJDIRPATH/sol*/
 char (*strPointer)[16] = nameOfFiles;
-char temp[255], indPth[255], problemTitle[255] = "error!!!!";
+char temp[255], indPth[255], problemTitle[255] = "error !!!";
 char *charPointer;
 char buffer;
 
@@ -29,9 +28,9 @@ LANG	srcs[] = {
 		{.name = NULL}
 		};
 DOCS	macro[] = {
-		{.id = "problem_description", .file = "description.bojSolGen", .header = NULL},
-		{.id = "problem_input", .file = "input.bojSolGen", .header = "## input"},
-		{.id = "problem_output", .file = "output.bojSolGen", .header = "## output"},
+		{.id = "problem_description", .header = NULL},
+		{.id = "problem_input", .header = "## input"},
+		{.id = "problem_output",.header = "## output"},
 		{.id = NULL}
 		};
 
